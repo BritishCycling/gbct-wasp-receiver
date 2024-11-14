@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+	<RuntimeIdentifiers>linux-arm64</RuntimeIdentifiers>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <Platforms>AnyCPU;ARM64</Platforms>
+	
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Api.Gax" Version="4.9.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.9.0" />
+    <PackageReference Include="Google.Cloud.PubSub.V1" Version="3.19.0" />
+    <PackageReference Include="WaspClassLibraryStandard" Version="1.2.6" />
+  </ItemGroup>
+
+</Project>
