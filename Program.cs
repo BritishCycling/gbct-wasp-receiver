@@ -1,6 +1,8 @@
 ﻿using Google.Api.Gax;
+using Google.Api.Gax.Grpc;
 using Google.Cloud.Firestore;
 using Google.Cloud.PubSub.V1;
+using Grpc.Core;
 using Newtonsoft.Json;
 using NorthPoleEngineering.WaspClassLibrary;
 // using NorthPoleEngineering.WaspClassLibrary.AeroSensorMonitor;
@@ -87,7 +89,7 @@ namespace WaspReceiver
 
             timer.Elapsed += HealthCheck;
             timer.Enabled = true;
-            Logger.LogLevel = Logger.LoggingLevel.Warning;
+            Logger.LogLevel = Logger.LoggingLevel.Error;
             AntPlusDevices ants = new AntPlusDevices(wasps);
             wasps.CollectionChanged += wasps_CollectionChanged;
             ants.AntPlusDeviceEvent += ants_AntPlusDeviceEvent;
@@ -115,10 +117,22 @@ namespace WaspReceiver
                         delayThreshold: TimeSpan.FromMilliseconds(1000)
                     ),
                 };
+                PublisherServiceApiSettings apiSettings = new PublisherServiceApiSettings
+                {
+                    PublishSettings = CallSettings.FromRetry(RetrySettings.FromExponentialBackoff(
+                            maxAttempts: 3,
+                            initialBackoff: TimeSpan.FromMilliseconds(100),
+                            maxBackoff: TimeSpan.FromSeconds(5),
+                            backoffMultiplier: 1,
+                            retryFilter: RetrySettings.FilterForStatusCodes(StatusCode.Unavailable)
+                        )).WithTimeout(TimeSpan.FromSeconds(5)),
+                };
+
                 PublisherClientBuilder publisherBuilder = new PublisherClientBuilder
                 {
                     TopicName = topicName,
                     Settings = customSettings,
+                    ApiSettings = apiSettings,
                 };
                 pubSubsPublishers.Add(publisherBuilder.Build());
                 Console.WriteLine(pubSubsPublishers.Count.ToString());
